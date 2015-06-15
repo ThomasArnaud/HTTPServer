@@ -1,14 +1,10 @@
 package ARAR.HTTP.Server;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -67,7 +63,7 @@ public class HTTPServer
         this.serverRoot = new File(serverRoot);
         this.documentRoot = new File(documentRoot);
         this.directoryIndex = directoryIndex;
-        //this.logger = new Logger(this.documentRoot, errorLog);
+        this.logger = new Logger(this.documentRoot, errorLog);
         
         if(!this.serverRoot.exists() || !this.serverRoot.isDirectory())
             throw new RuntimeException("Server root is invalid.");
@@ -100,18 +96,7 @@ public class HTTPServer
             } 
             catch (IOException e) 
             {
-                /*try 
-                {
-                    BufferedWriter errorLogWriter = new BufferedWriter(new FileWriter(this.errorLog));
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("[yyyy-MM-dd HH:mm:ss]");
-                    errorLogWriter.write(dateFormat.format(Calendar.getInstance().getTime()));
-                    errorLogWriter.write("Cannot accept client: " + e.getMessage());
-                    errorLogWriter.close();
-                } 
-                catch (IOException ex) 
-                {
-                    System.err.println(ex.getMessage());
-                }*/
+                this.logger.log("Cannot accept client :" + e.getMessage());
             }
         }
     }
