@@ -47,7 +47,7 @@ public class HTTPServer
      */
     public HTTPServer(int port, String serverRoot, String documentRoot)
     {
-        this(port, serverRoot, documentRoot, new HashSet<String>(Arrays.asList("index.html","index.htm")), "error.log");
+        this(port, serverRoot, documentRoot, new HashSet<>(Arrays.asList("index.html","index.htm")), "error.log");
     }
     
     /**
@@ -82,7 +82,7 @@ public class HTTPServer
     }
     
     /**
-     * Launches et runs a server
+     * Launches and runs a server
      */
     public void run()
     {
@@ -109,5 +109,10 @@ public class HTTPServer
     public Set<String> getDirectoryIndex()
     {
         return this.directoryIndex;
+    }
+    
+    public Logger getLogger()
+    {
+        return this.logger;
     }
 }
