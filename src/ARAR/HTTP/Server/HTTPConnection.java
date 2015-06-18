@@ -2,16 +2,12 @@ package ARAR.HTTP.Server;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.URL;
 import java.net.URLConnection;
@@ -53,6 +49,7 @@ public class HTTPConnection extends Thread
             //read the request
             // voir TFTP byte array stream String request = this.socketReader.();
             //analyse the request
+            String request = this.readRequest();
             String requestType = request.substring(0, request.indexOf(" ")).toUpperCase();
             
             switch(requestType)
@@ -65,22 +62,17 @@ public class HTTPConnection extends Thread
                     {
                         if(requestedRessource.isFile())
                         {
-                            BufferedInputStream intput = new BufferedInputStream(new FileInputStream(requestedRessource));
-                            StringBuilder responseBuilder = new StringBuilder();
-                            responseBuilder
-                                .append("HTTP/1.1 200 OK\r\n")
-                                .append("Content-Length: " + requestedRessource.length() + "\r\n")
-                                .append("Content-Type: " + URLConnection.guessContentTypeFromStream(intput) + "\r\n")
-                                .append("\r\n")
-                            ;
+                            this.socketWriter.write(writeGETResponse(requestedRessource));
                         }
                     }
-                    else this.socketWriter.write("404 Not Found\r\n");
+                    else this.socketWriter.write(HTTPError.NotFound.getResponse());
                 break;
                     
                 default:
-                    this.socketWriter.write("HTTP/1.1 501 Not Implemented\r\n");
+                    this.socketWriter.write(HTTPError.NotImplemented.getResponse());
             }
+            
+            this.socket.close();
         } 
         catch (IOException ex) 
         {
