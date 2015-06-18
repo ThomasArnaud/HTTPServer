@@ -1,12 +1,8 @@
 package arar.http.server;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URLConnection;
 
 /**
  * @author Thomas Arnaud, Bruno Buiret, Sydney Adjou
@@ -18,31 +14,37 @@ public enum HTTPError
     InternalServerError(500, "Internal Server Error"),
     NotImplemented(501, "Not Implemented");
     
+    /**
+     * Holds the error code.
+     */
     protected int errorCode;
     
+    /**
+     * Holds the error message.
+     */
     protected String errorMessage;
 
+    /**
+     * Creates an HTTP error.
+     * 
+     * @param errorCode Error code.
+     * @param errorMessage Error message.
+     */
     HTTPError(int errorCode, String errorMessage)
     {
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;
     }
     
-    public int getErrorCode()
-    {
-        return this.errorCode;
-    }
-    
-    public String getErrorMessage()
-    {
-        return this.errorMessage;
-    }
-    
-    public byte[] getResponse()
+    /**
+     * Gets an array of bytes containing the error response.
+     * 
+     * @return Error response as an array of bytes.
+     */
+    public byte[] toByteArray()
     {
         ByteArrayOutputStream dataStream;
         DataOutputStream dataWriter;
-        BufferedInputStream inputStream;
         
         // Manipulateur de tableau d'octets
         dataWriter = new DataOutputStream(dataStream = new ByteArrayOutputStream());

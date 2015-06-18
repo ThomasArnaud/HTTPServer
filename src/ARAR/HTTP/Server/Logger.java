@@ -6,26 +6,41 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.logging.Level;
 
 /**
- *
  * @author Thomas Arnaud, Bruno Buiret, Sydney Adjou
  */
 public class Logger
 {
+    /**
+     * Log date format.
+     */
+    protected static SimpleDateFormat dateFormat = new SimpleDateFormat("[yyyy-MM-dd HH:mm:ss]");;
+    
+    /**
+     * Reference to the log file.
+     */
     protected File errorLog;
     
-    protected static SimpleDateFormat dateFormat = new SimpleDateFormat("[yyyy-MM-dd HH:mm:ss]");;
-            
-    public Logger(File documentRoot, String errorLog)
+    /**
+     * Creates a new logger.
+     * 
+     * @param serverRoot Server root containing logs and config files.
+     * @param errorLog Name of the error log file.
+     */
+    public Logger(File serverRoot, String errorLog)
     {
-        this.errorLog = new File(documentRoot, errorLog);
+        this.errorLog = new File(serverRoot, errorLog);
         
         if(this.errorLog.exists() && this.errorLog.isDirectory())
             throw new RuntimeException("errorLog is invalid.");
     }
-            
+    
+    /**
+     * Appends a message to the error log file.
+     * 
+     * @param message Message to append.
+     */
     public void log(String message)
     {
         try 
@@ -39,8 +54,5 @@ public class Logger
         {
             System.err.println("Cannot write into log : " + ex.getMessage());
         }
-        
-    }    
+    }
 }
-
-
