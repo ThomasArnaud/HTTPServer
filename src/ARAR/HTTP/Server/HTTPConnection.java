@@ -4,8 +4,11 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -83,5 +86,51 @@ public class HTTPConnection extends Thread
         {
             this.server.getLogger().log("Une erreur est survenue : " + ex.getMessage());
         }
+    }
+    
+    /**
+     * 
+     * @param requestedResource
+     * @return 
+     */
+    protected byte[] writeGETResponse(File requestedResource)
+    {
+        ByteArrayOutputStream dataStream;
+        DataOutputStream dataWriter;
+        BufferedInputStream inputStream;
+        
+        // Manipulateur de tableau d'octets
+        dataWriter = new DataOutputStream(dataStream = new ByteArrayOutputStream());
+        
+        try
+        {
+            // Ouverture du fichier demandé
+            inputStream = new BufferedInputStream(new FileInputStream(requestedResource));
+            
+            // Ecriture de l'en-tête
+            dataWriter.writeBytes("HTTP/1.1 200 OK\r\n");
+            dataWriter.writeBytes("Content-Length: " + requestedResource.length() + "\r\n");
+            dataWriter.writeBytes("Content-Type: " + URLConnection.guessContentTypeFromStream(inputStream));
+            dataWriter.writeBytes("\r\n");
+            
+            // Ecriture du contenu de la ressource
+            while(inputStream.available() > 0)
+                dataWriter.writeByte(inputStream.read());
+            
+            // Fermeture de la ressource
+            inputStream.close();
+            
+            return dataStream.toByteArray();
+        }
+        catch(FileNotFoundException e)
+        {
+            this.server.getLogger().log("Requested resource \"" + requestedResource.getAbsolutePath() + "\" cannot be found.");
+        }
+        catch(IOException e)
+        {
+            this.server.getLogger().log("Couldn't create GET response: " + e.getMessage());
+        }
+        
+        return null;
     }
 }
