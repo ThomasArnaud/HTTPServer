@@ -73,46 +73,43 @@ public class HTTPConnection extends Thread
             
             if(request != null && request.length() > 0)
             {
-                // Tester si la requête est bien formée
-                String requestType = request.substring(0, request.indexOf(" ")).toUpperCase();
+                // Extraction de la méthode
+                String method = request.substring(0, request.indexOf(" ")).toUpperCase();
 
-                switch(requestType)
+                switch(method)
                 {
                     case "GET":
+                        // Extraction du fichier à partir de l'URL
                         URL uri = new URL(request.substring(4, request.lastIndexOf(" HTTP/1.")));
                         File requestedRessource = new File(this.server.getDocumentRoot(), uri.getPath());
-
+                        
+                        // Vérification sur la ressource demandée
                         if(requestedRessource.exists())
                             if(requestedRessource.isFile())
-                                this.socketWriter.write(this.writeGETResponse(requestedRessource));
+                                this.sendResponse(this.encodeResponse(requestedRessource));
                             else
-                                this.socketWriter.write(HTTPError.Forbidden.toByteArray());
+                                this.sendResponse(HTTPError.Forbidden.toByteArray());
                         else
-                            this.socketWriter.write(HTTPError.NotFound.toByteArray());
+                            this.sendResponse(HTTPError.NotFound.toByteArray());
                     break;
 
                     default:
-                        this.socketWriter.write(HTTPError.NotImplemented.toByteArray());
+                        // Toutes les autres méthodes ne sont pas implémentées
+                        this.sendResponse(HTTPError.NotImplemented.toByteArray());
                 }
             }
             else
             {
-                this.socketWriter.write(HTTPError.BadRequest.toByteArray());
+                // La requête est vide
+                this.sendResponse(HTTPError.BadRequest.toByteArray());
             }
             
             this.socketWriter.flush();
         }
         catch(MalformedURLException e)
         {
-            try
-            {
-                this.socketWriter.write(HTTPError.BadRequest.toByteArray());
-                this.socketWriter.flush();
-            }
-            catch(IOException ex)
-            {
-                this.server.getLogger().log("An error happened: " + ex.getMessage());
-            }
+            this.sendResponse(HTTPError.BadRequest.toByteArray());
+            this.server.getLogger().log("Couldn't parse URL: " + e.getMessage());
         }
         catch(IOException e) 
         {
@@ -132,19 +129,72 @@ public class HTTPConnection extends Thread
     }
     
     /**
+     * Sends the response to the client.
      * 
-     * @param requestedResource
-     * @return 
+     * @param encodedResponse Response encoded as an array of bytes.
      */
-    protected byte[] writeGETResponse(File requestedResource)
+    protected void sendResponse(byte[] encodedResponse)
+    {
+        if(this.server.isDebug())
+        {
+            String response = new String(encodedResponse);
+            System.out.println("-> " + this.socket.getInetAddress() + ":" + this.socket.getPort() + " " + response.substring(0, response.indexOf("\r\n")));
+        }
+        
+        try
+        {
+            this.socketWriter.write(encodedResponse);
+            this.socketWriter.flush();
+        }
+        catch(IOException e)
+        {
+            this.server.getLogger().log("Couldn't send response: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Reads the request sent by the client.
+     * 
+     * @return Decoded request or <code>null</code> if an error happened.
+     */
+    protected String readRequest()
     {
         ByteArrayOutputStream dataStream;
-        DataOutputStream dataWriter;
+        DataOutputStream dataWriter = new DataOutputStream(dataStream = new ByteArrayOutputStream());
+        
+        try
+        {
+            do
+            {
+                dataWriter.writeByte(this.socketReader.read());
+            }
+            while(this.socketReader.available() > 0);
+            
+            if(this.server.isDebug())
+                System.out.println("<- " + this.socket.getInetAddress() + ":" + this.socket.getPort() + " " + new String(dataStream.toByteArray()).trim());
+            
+            return new String(dataStream.toByteArray());
+        }
+        catch(IOException e)
+        {
+            this.server.getLogger().log("Couldn't read request : " + e.getMessage());
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Encodes a 200 OK response with the contents of the requested resource.
+     * 
+     * @param requestedResource Reference to the requested resource.
+     * @return Encoded response as an array of bytes or <code>null</code> if an error happened.
+     */
+    protected byte[] encodeResponse(File requestedResource)
+    {
+        ByteArrayOutputStream dataStream;
+        DataOutputStream dataWriter = new DataOutputStream(dataStream = new ByteArrayOutputStream());
         BufferedInputStream inputStream;
         int readByte;
-        
-        // Manipulateur de tableau d'octets
-        dataWriter = new DataOutputStream(dataStream = new ByteArrayOutputStream());
         
         try
         {
@@ -154,7 +204,7 @@ public class HTTPConnection extends Thread
             // Ecriture de l'en-tête
             dataWriter.writeBytes("HTTP/1.1 200 OK\r\n");
             dataWriter.writeBytes("Content-Length: " + requestedResource.length() + "\r\n");
-            dataWriter.writeBytes("Content-Type: " + URLConnection.guessContentTypeFromStream(inputStream) + "\r\n");
+            dataWriter.writeBytes("Content-Type: " + URLConnection.guessContentTypeFromName(requestedResource.getName()) + "\r\n");
             dataWriter.writeBytes("\r\n");
             
             // Ecriture du contenu de la ressource
@@ -164,55 +214,16 @@ public class HTTPConnection extends Thread
             // Fermeture de la ressource
             inputStream.close();
             
-            if(this.server.isDebug())
-            {
-                String request = new String(dataStream.toByteArray());
-                System.out.println(request.substring(0, request.indexOf("\r\n\r\n")));
-            }
-            
             return dataStream.toByteArray();
         }
         catch(FileNotFoundException e)
         {
             this.server.getLogger().log("Requested resource \"" + requestedResource.getAbsolutePath() + "\" cannot be found.");
+            return HTTPError.NotFound.toByteArray();
         }
         catch(IOException e)
         {
             this.server.getLogger().log("Couldn't create GET response: " + e.getMessage());
-        }
-        
-        return null;
-    }
-    
-    /**
-     * 
-     * @return 
-     */
-    protected String readRequest()
-    {
-        ByteArrayOutputStream dataStream;
-        DataOutputStream dataWriter;
-        
-        // Manipulateur de tableau d'octets
-        dataWriter = new DataOutputStream(dataStream = new ByteArrayOutputStream());
-        
-        try
-        {
-            // Lecture du contenu de la requête
-            do
-            {
-                dataWriter.writeByte(this.socketReader.read());
-            }
-            while(this.socketReader.available() > 0);
-            
-            if(this.server.isDebug())
-                System.out.println(this.socket.getInetAddress() + ":" + this.socket.getPort() + " " + new String(dataStream.toByteArray()).trim());
-            
-            return new String(dataStream.toByteArray());
-        }
-        catch(IOException e)
-        {
-            this.server.getLogger().log("Couldn't read request : " + e.getMessage());
         }
         
         return null;
