@@ -133,4 +133,32 @@ public class HTTPConnection extends Thread
         
         return null;
     }
+    
+    /**
+     * 
+     * @return 
+     */
+    protected String readRequest()
+    {
+        ByteArrayOutputStream dataStream;
+        DataOutputStream dataWriter;
+        
+        // Manipulateur de tableau d'octets
+        dataWriter = new DataOutputStream(dataStream = new ByteArrayOutputStream());
+        
+        try
+        {
+            // Lecture du contenu de la requête
+            while(this.socketReader.available() > 0)
+                dataWriter.writeByte(this.socketReader.read());
+            
+            return new String(dataStream.toByteArray());
+        }
+        catch(IOException e)
+        {
+            this.server.getLogger().log("Couldn't read request : " + e.getMessage());
+        }
+        
+        return null;
+    }
 }
