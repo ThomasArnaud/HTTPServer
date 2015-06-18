@@ -140,6 +140,9 @@ public class HTTPConnection extends Thread
         
         try
         {
+            // Attente de la requête
+            while(this.socketReader.available() == 0);
+            
             // Lecture du contenu de la requête
             while(this.socketReader.available() > 0)
                 dataWriter.writeByte(this.socketReader.read());
