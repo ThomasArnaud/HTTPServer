@@ -1,4 +1,4 @@
-package ARAR.HTTP.Server;
+package arar.http.server;
 
 import java.io.BufferedWriter;
 import java.io.File;

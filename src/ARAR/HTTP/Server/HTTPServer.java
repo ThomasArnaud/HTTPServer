@@ -1,4 +1,4 @@
-package ARAR.HTTP.Server;
+package arar.http.server;
 
 import java.io.File;
 import java.io.IOException;
