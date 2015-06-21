@@ -27,7 +27,7 @@ public abstract class ClientTest
             
             // Ecriture et envoi de la requête
             dataWriter = new DataOutputStream(dataStream = new ByteArrayOutputStream());
-            dataWriter.writeBytes("GET http://localhost/Test.txt HTTP/1.1\r\n");
+            dataWriter.writeBytes("GET http://localhost/test.txt HTTP/1.1\r\n");
             System.out.println("-> " + new String(dataStream.toByteArray()).trim());
             s.getOutputStream().write(dataStream.toByteArray());
             s.getOutputStream().flush();
