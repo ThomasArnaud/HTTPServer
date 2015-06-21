@@ -46,7 +46,7 @@ public class ClientHttp {
     
     public String constructGet (String fileName) {
         this.file = fileName;
-        String getRequest = "/GET ";
+        String getRequest = "GET ";
         getRequest+="http:/";
         getRequest+=socketClient.getInetAddress().toString();
         getRequest+="/";
