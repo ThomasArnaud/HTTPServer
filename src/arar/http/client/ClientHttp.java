@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -45,7 +46,7 @@ public class ClientHttp {
     
     public String constructGet (String fileName) {
         this.file = fileName;
-        String getRequest = "GET ";
+        String getRequest = "/GET ";
         getRequest+="http:/";
         getRequest+=socketClient.getInetAddress().toString();
         getRequest+="/";
@@ -87,17 +88,15 @@ public class ClientHttp {
                 while((line = in.readLine()) != null){
                     sb.append(line);
                 }
-                            FileWriter fstream;                
-                            fstream = new FileWriter("MyHtml.html");
                             String response = sb.toString();
+                            System.out.println(sb);
+                            BufferedWriter output = null;
+                            File fich= new File("index.html");
+                            output = new BufferedWriter(new FileWriter(fich));
                             Header = response.substring(0, response.indexOf("\r\n\r\n"));
                             HtmlPage = response.substring(response.indexOf("\r\n\r\n"));
-                            BufferedWriter out = new BufferedWriter(fstream);
-                            out.write(HtmlPage); 
-                            /*fstream.write(HtmlPage);
-                            in.close();*/
-                            fstream.close();
-                            out.close();
+                            output.write(HtmlPage);
+                            output.close();
                             in.close();
                             return sb.toString();
             } 
