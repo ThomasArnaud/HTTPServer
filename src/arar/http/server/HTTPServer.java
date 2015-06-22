@@ -30,17 +30,17 @@ public class HTTPServer
     protected Logger logger;
     
     /**
-     * 
+     * Is debug mode activated ?
      */
     protected boolean debug;
     
     /**
      * Creates new HTTP server with default config.
      * 
-     * @param port
-     * @param serverRoot
-     * @param documentRoot 
-     * @param debug 
+     * @param port Port to listen to.
+     * @param serverRoot Config files and logs directory.
+     * @param documentRoot Web root directory.
+     * @param debug Debug mode.
      */
     public HTTPServer(int port, String serverRoot, String documentRoot, boolean debug)
     {
@@ -52,8 +52,8 @@ public class HTTPServer
      * 
      * @param port Port to listen to.
      * @param serverRoot Config files and logs directory.
-     * @param documentRoot Web directory.
-     * @param debug
+     * @param documentRoot Web root directory.
+     * @param debug Debug mode.
      * @param errorLog Error log's name.
      */
     public HTTPServer(int port, String serverRoot, String documentRoot, boolean debug, String errorLog)
@@ -112,14 +112,20 @@ public class HTTPServer
     }
     
     /**
+     * Gets the logger.
      * 
-     * @return 
+     * @return Reference to the logger.
      */
     public Logger getLogger()
     {
         return this.logger;
     }
     
+    /**
+     * Tests if the server is in debug mode.
+     * 
+     * @return <code>true</code> if debug is on, <code>false</code> otherwise.
+     */
     public boolean isDebug()
     {
         return this.debug;

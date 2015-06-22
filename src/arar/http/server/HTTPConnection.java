@@ -103,17 +103,11 @@ public class HTTPConnection extends Thread
                 // La requête est vide
                 this.sendResponse(HTTPError.BadRequest.toByteArray());
             }
-            
-            this.socketWriter.flush();
         }
         catch(MalformedURLException e)
         {
             this.sendResponse(HTTPError.BadRequest.toByteArray());
             this.server.getLogger().log("Couldn't parse URL: " + e.getMessage());
-        }
-        catch(IOException e) 
-        {
-            this.server.getLogger().log("An error happened: " + e.getMessage());
         }
         finally
         {
