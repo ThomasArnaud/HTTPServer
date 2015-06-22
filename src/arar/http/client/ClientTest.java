@@ -1,10 +1,7 @@
 package arar.http.client;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.net.InetAddress;
-import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,6 +12,7 @@ public abstract class ClientTest
 {
     public static void main(String[] args)
     {
+        /*
         try
         {
             // Ouverture du socket
@@ -27,7 +25,7 @@ public abstract class ClientTest
             
             // Ecriture et envoi de la requête
             dataWriter = new DataOutputStream(dataStream = new ByteArrayOutputStream());
-            dataWriter.writeBytes("GET http://localhost/test.txt HTTP/1.1\r\n");
+            dataWriter.writeBytes("GET http://localhost/Test.docx HTTP/1.1\r\n");
             System.out.println("-> " + new String(dataStream.toByteArray()).trim());
             s.getOutputStream().write(dataStream.toByteArray());
             s.getOutputStream().flush();
@@ -47,6 +45,15 @@ public abstract class ClientTest
             s.close();
         }
         catch(IOException e)
+        {
+            Logger.getLogger(ClientTest.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+        }
+        */
+        try
+        {
+            HTTPClient.get("Test.docx", "D:\\Test.docx", InetAddress.getByName("127.0.0.1"), 10080);
+        }
+        catch(UnknownHostException e)
         {
             Logger.getLogger(ClientTest.class.getName()).log(Level.SEVERE, e.getMessage(), e);
         }

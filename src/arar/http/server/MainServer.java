@@ -7,7 +7,7 @@ public abstract class MainServer
 {
     public static void main(String[] args)
     {
-        HTTPServer s = new HTTPServer(10080, "D:\\HTTP\\ServerRoot", "D:\\HTTP\\ServerRoot\\", true);
+        HTTPServer s = new HTTPServer(10080, "D:\\HTTP\\ServerRoot", "D:\\HTTP\\DocumentRoot\\", true);
         s.run();
     }
 }
